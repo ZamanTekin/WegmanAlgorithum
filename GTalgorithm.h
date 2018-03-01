@@ -47,7 +47,7 @@ namespace GT{
 
 		// generate original basis matrix. loses all 0 values after single rotation so minimal justification to use sparse.
 		// synonymous function, lose in class
-		Eigen::MatrixXd genbasis();
+        //Eigen::MatrixXd genbasis();
 
 		// lose of optimisation pass probably - change filemanager to store as matrix?
 		// could lose latter arguments and read from vector
@@ -64,7 +64,7 @@ namespace GT{
 		~GTalgorithm(){}
 
 
-		Eigen::MatrixXd iterate(const int di = 1);
+        Eigen::MatrixXd iterate(const int di = 1);
 		Eigen::MatrixXd iterateabsolute(const size_t i);
 
 		void reset();
