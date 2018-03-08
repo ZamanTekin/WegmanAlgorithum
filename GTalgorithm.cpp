@@ -129,6 +129,20 @@ Eigen::MatrixXd GTalgorithm::datatomatrix(const vector<vector<double>> data){
 //
 //}
 
+/*GTalgorithm::GTalgorithm(){
+    iteration = 0;
+    stepsize = exp(-5);
+    proj = 2;
+    vector<vector<double>> data {{0.0}};
+    count = data.size();
+    dim = data[0].size();
+    initialdata = datatomatrix(data);
+    initialbases = Eigen::MatrixXd::Identity(dim, proj);
+    N = genN();
+    lambda = genlambda();
+    I = genI();
+}*/
+
 GTalgorithm::GTalgorithm(const vector<vector<double>> data, const int projs, const double step){
 	iteration = 0;
 	stepsize = step;
