@@ -1,4 +1,5 @@
 #include "filemanager.h"
+#include <QFileDialog>
 
 using namespace std;
 using namespace filemanager;
@@ -79,6 +80,34 @@ vector<vector<double>> file::datastore(istream &is){
 	return data;
 }
 
+file::file(){
+    string name = (QFileDialog::getOpenFileName(NULL,"open file","/home","(*.txt *.csv)")).toStdString();
+    ifstream stream;
+
+    stream.open(name);
+
+    if (stream.is_open()){
+        filename = name;
+
+        dimensionality = dimcount(stream);
+        labels = labelstore(dimensionality, stream);
+        data = datastore(stream);
+        count = data.size();
+    }
+    else{
+        filename = "INVALID";
+        //perror("Error: ");
+        dimensionality = 1;
+        vector<string> emptylabel = { "NULL" };
+        labels = emptylabel;
+        count = 1;
+        vector<vector<double>> emptydata = { { std::numeric_limits<double>::quiet_NaN() } };
+        data = emptydata;
+    }
+
+    stream.close();
+}
+
 file::file(const std::string name){
 	ifstream stream;
 
@@ -105,6 +134,7 @@ file::file(const std::string name){
 
 	stream.close();
 }
+
 
 //index runs from 0
 std::string file::getlabel(const int index) const{

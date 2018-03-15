@@ -35,6 +35,7 @@ namespace filemanager{
 
 	public:
 		// constructor reads file
+        file();
 		file(const std::string name);
 		~file(){}
 
