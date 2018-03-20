@@ -1,8 +1,10 @@
 #include "filemanager.h"
+#include <QFileDialog>
 
 using namespace std;
 using namespace filemanager;
 
+// returns double or NaN
 double file::isNum(const std::string test) const{
 	double conversion;
 	try{
@@ -14,30 +16,7 @@ double file::isNum(const std::string test) const{
 	return conversion;
 }
 
-//// might be useful - uses iostream
-//int file::lineCount(const string filename){
-//	// returns an error on failure to open
-//	ifstream myfile(filename);
-//	if (!myfile.good()) {
-//		cout << "file failed to open";
-//		return -1;
-//	}
-//
-//	int linecount(0);
-//	string line;
-//
-//	// iterates over file until end reached, counting only lines that can be converted to doubles.
-//	myfile >> line;  // prime read to prevent eof duplicating last line
-//	while (!myfile.eof()){
-//		if (isNum(line) != 0){
-//			linecount++;
-//		}
-//		myfile >> line;
-//	}
-//	myfile.close();
-//	return linecount;
-//}
-
+// returns number of dimensions from dimensionality line
 int file::dimcount(istream &is){
 	string line;
 	getline(is, line);
@@ -48,6 +27,7 @@ int file::dimcount(istream &is){
 	return dim;
 }
 
+// reads labels from list of labels
 vector<std::string> file::labelstore(const int dim, istream &is){
 	vector<std::string> labels;
 	string line;
@@ -59,6 +39,8 @@ vector<std::string> file::labelstore(const int dim, istream &is){
 	return labels;
 }
 
+// reads data
+// copies whitespacve delimited data, ignores empty lines
 vector<vector<double>> file::datastore(istream &is){
 	vector<vector<double>> data;
 	string line;
@@ -79,6 +61,36 @@ vector<vector<double>> file::datastore(istream &is){
 	return data;
 }
 
+//default constructor calls file dialogue
+// creates dummy data on failure to open file
+file::file(){
+    string name = (QFileDialog::getOpenFileName(NULL,"open file","/home","(*.txt *.csv)")).toStdString();
+    ifstream stream;
+
+    stream.open(name);
+
+    if (stream.is_open()){
+        filename = name;
+
+        dimensionality = dimcount(stream);
+        labels = labelstore(dimensionality, stream);
+        data = datastore(stream);
+        count = data.size();
+    }
+    else{
+        filename = "INVALID";
+        dimensionality = 1;
+        vector<string> emptylabel = { "NULL" };
+        labels = emptylabel;
+        count = 1;
+        vector<vector<double>> emptydata = { { std::numeric_limits<double>::quiet_NaN() } };
+        data = emptydata;
+    }
+
+    stream.close();
+}
+
+// opens file @ name
 file::file(const std::string name){
 	ifstream stream;
 
@@ -106,7 +118,7 @@ file::file(const std::string name){
 	stream.close();
 }
 
-//index runs from 0
+// return specific label
 std::string file::getlabel(const int index) const{
 	if (index < dimensionality){
 		return labels[index];
@@ -116,6 +128,7 @@ std::string file::getlabel(const int index) const{
 	}
 }
 
+// return specific datapoint, or dummy point if out of range
 vector<double> file::getdatapoint(const int index) const{
 	if (index < count){
 		return data[index];
@@ -128,6 +141,8 @@ vector<double> file::getdatapoint(const int index) const{
 		return fakepoint;
 	}
 }
+
+// return specific coordinate of specirfic datapoint, or NaN on fail
 double file::getdatapointcoord(const int pointindex, const int dimensionindex) const{
 	if ((pointindex < count) && (dimensionindex < dimensionality)){
 		return data[pointindex][dimensionindex];
