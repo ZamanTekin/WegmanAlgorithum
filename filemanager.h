@@ -13,6 +13,15 @@ namespace filemanager{
 
 	// base class for shared handling
 	// NOT IDIOTPROOFED
+
+    // takes format:
+    // variables: DIMENSIONCOUNT
+    // labels:
+    // LABEL1
+    // LABEL2...
+    // X1 X2 X3 X4 ....
+    // X1 X2 X3 X4 ....
+
 	class file{
 	protected:
 		// class variables
@@ -20,27 +29,29 @@ namespace filemanager{
 		int dimensionality;
 		int count;
 		vector<std::string> labels;
+        // possibly should be changed to Dense Matrix, though only really slows on starting new data set
 		vector < vector<double> > data;
 
 		//checks if a value is a double, otherwise returns NaN
 		double isNum(std::string test) const;
 
-		//// might be useful
-		//int lineCount(const string filename);
-
 		//functions to take in data
+        // reads first line for dimensions
 		int dimcount(istream &is);
+        // reads label list
 		vector<std::string> labelstore(const int dim, istream &is);
+        // reads body of data
 		vector < vector<double> > datastore(istream &is);
 
 	public:
 		// constructor reads file
+        file(); //calls file dialog - uses QT
 		file(const std::string name);
 		~file(){}
 
 		// getters for variables and sub-variables
 		//indices start at 0 where appropriate
-		// eg. loops over (i=0; i < dim/count; i++)
+        // eg. loops over (i=0; i < dim or count; i++)
 		string getfilename() const { return filename; }
 		int getdim() const {return dimensionality;}
 		vector<std::string> getlabels() const { return labels; }
