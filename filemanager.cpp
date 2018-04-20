@@ -118,6 +118,61 @@ file::file(const std::string name){
 	stream.close();
 }
 
+// resets file data
+void file::newfile(){
+    string name = (QFileDialog::getOpenFileName(NULL,"open file","/home","(*.txt *.csv)")).toStdString();
+    ifstream stream;
+
+    stream.open(name);
+
+    if (stream.is_open()){
+        filename = name;
+
+        dimensionality = dimcount(stream);
+        labels = labelstore(dimensionality, stream);
+        data = datastore(stream);
+        count = data.size();
+    }
+    else{
+        filename = "INVALID";
+        dimensionality = 1;
+        vector<string> emptylabel = { "NULL" };
+        labels = emptylabel;
+        count = 1;
+        vector<vector<double>> emptydata = { { std::numeric_limits<double>::quiet_NaN() } };
+        data = emptydata;
+    }
+
+    stream.close();
+}
+
+void file::newfile(const std::string name){
+    ifstream stream;
+
+    stream.open(name);
+
+    if (stream.is_open()){
+        filename = name;
+
+        dimensionality = dimcount(stream);
+        labels = labelstore(dimensionality, stream);
+        data = datastore(stream);
+        count = data.size();
+    }
+    else{
+        filename = "INVALID";
+        //perror("Error: ");
+        dimensionality = 1;
+        vector<string> emptylabel = { "NULL" };
+        labels = emptylabel;
+        count = 1;
+        vector<vector<double>> emptydata = { { std::numeric_limits<double>::quiet_NaN() } };
+        data = emptydata;
+    }
+
+    stream.close();
+}
+
 // return specific label
 std::string file::getlabel(const int index) const{
 	if (index < dimensionality){

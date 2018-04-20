@@ -30,13 +30,15 @@ SOURCES += \
         mainwindow.cpp \
     subscatter.cpp \
     filemanager.cpp \
-    GTalgorithm.cpp
+    GTalgorithm.cpp \
+    masterplot.cpp
 
 HEADERS += \
         mainwindow.h \
     subscatter.h \
     filemanager.h \
-    GTalgorithm.h
+    GTalgorithm.h \
+    masterplot.h
 
 FORMS += \
         mainwindow.ui

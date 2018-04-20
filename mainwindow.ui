@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>1205</width>
     <height>300</height>
    </rect>
   </property>
@@ -19,12 +19,26 @@
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="1" column="3">
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item row="2" column="7">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
-           <widget class="QSlider" name="fpscap">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+           <widget class="QPushButton" name="biggerminusButton">
+            <property name="text">
+             <string>-100</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="bigminusButton">
+            <property name="text">
+             <string>-10</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="minusButton">
+            <property name="text">
+             <string>-1</string>
             </property>
            </widget>
           </item>
@@ -35,22 +49,81 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="plusButton">
+            <property name="text">
+             <string>+1</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="bigplusButton">
+            <property name="text">
+             <string>+10</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="biggerplusButton">
+            <property name="text">
+             <string>+100</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
-        <item row="1" column="1">
+        <item row="2" column="5">
+         <widget class="QSlider" name="fpscap">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="fpscaplabel">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="fpslabel">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="2" column="1">
          <widget class="QComboBox" name="dim2"/>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QComboBox" name="dim1"/>
         </item>
-        <item row="1" column="2">
+        <item row="2" column="3">
          <widget class="QSlider" name="sizegetter">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
+        <item row="0" column="3">
          <widget class="QLabel" name="sizegetterlabel">
           <property name="text">
            <string>TextLabel</string>
@@ -71,19 +144,90 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="3">
-         <widget class="QLabel" name="fpscaplabel">
+        <item row="2" column="2">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="filedialogButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="openButton">
+            <property name="text">
+             <string>Open</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLineEdit" name="filenamebox"/>
+        </item>
+        <item row="0" column="6">
+         <widget class="QLabel" name="iterationlabel">
           <property name="text">
            <string>TextLabel</string>
           </property>
          </widget>
+        </item>
+        <item row="2" column="6">
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QLineEdit" name="iterationbox"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="iterationButton">
+            <property name="text">
+             <string>Set</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="7">
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QPushButton" name="zoomButton">
+            <property name="text">
+             <string>Zoom</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="group1Button">
+            <property name="text">
+             <string>Group 1</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="group2Button">
+            <property name="text">
+             <string>Group 2</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="showbasisButton">
+            <property name="text">
+             <string>Get Axes</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="scatterLayout"/>
+     <layout class="QVBoxLayout" name="scatterLayout">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5"/>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -92,7 +236,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
+     <width>1205</width>
      <height>21</height>
     </rect>
    </property>

@@ -134,6 +134,21 @@ GTalgorithm::GTalgorithm(const vector<vector<double>> data, const int projs, con
 }
 
 
+void GTalgorithm::changeData(const vector<vector<double>> data, const int projs, const double step){
+    iteration = 0;
+    stepsize = step;
+    proj = projs;
+    count = data.size();
+    dim = data[0].size();
+    initialdata = datatomatrix(data);
+    initialbases = Eigen::MatrixXd::Identity(dim, proj);
+    N = genN();
+    lambda = genlambda();
+    I = genI();
+}
+
+
+
 // could probably be built into iterate
 Eigen::MatrixXd GTalgorithm::rotatebasis() const{
 	return rotprod()*initialbases;
@@ -150,8 +165,8 @@ Eigen::MatrixXd GTalgorithm::iterate(const int di){
 }
 
 // keep current iteration but returns specified
-Eigen::MatrixXd GTalgorithm::iterateabsolute(const size_t i){
-	size_t tempit = iteration;
+Eigen::MatrixXd GTalgorithm::iterateabsolute(const int i){
+    int tempit = iteration;
 	iteration = i;
 	Eigen::MatrixXd newdata = projectdata();
 	iteration = tempit;
@@ -162,4 +177,13 @@ Eigen::MatrixXd GTalgorithm::iterateabsolute(const size_t i){
 Eigen::MatrixXd GTalgorithm::set(const int i){
     iteration = i;
     return iterateabsolute(i);
+}
+
+Eigen::MatrixXd GTalgorithm::getBasis() const {
+    return rotatebasis();
+}
+
+int GTalgorithm::getIteration() const
+{
+    return iteration;
 }

@@ -49,6 +49,10 @@ namespace filemanager{
 		file(const std::string name);
 		~file(){}
 
+        // reset file data, should really write assiugnemnt constructo instead
+        void newfile();
+        void newfile(const std::string name);
+
 		// getters for variables and sub-variables
 		//indices start at 0 where appropriate
         // eg. loops over (i=0; i < dim or count; i++)
