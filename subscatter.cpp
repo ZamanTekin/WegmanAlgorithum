@@ -5,8 +5,6 @@
 #include <cmath>
 
 SubScatter::SubScatter(const int &dimension1, const int &dimension2, const Eigen::MatrixXd &data, const int markersize, QWidget *parent) : QChartView(new QChart(), parent),
-    m_scatter1(0),
-    m_scatter2(0),
     dim1(dimension1),
     dim2(dimension2),
     size(markersize)
@@ -14,26 +12,20 @@ SubScatter::SubScatter(const int &dimension1, const int &dimension2, const Eigen
     //intialise scatterseries
 
     qDebug() << "initialising scatter";
-    m_scatter1 = new QScatterSeries();
+    QScatterSeries *scatter = new QScatterSeries(this);
     for (int i = 0; i < data.rows(); i ++) {
         P p;
         p.point = QPointF(data(i,dim1), data(i,dim2));
         p.group = 1;
-        *m_scatter1 << p.point;
+        *scatter << p.point;
         groups.push_back(p);
     }
-    m_scatter2 = new QScatterSeries();
+    scatter->setUseOpenGL(true);
+    scatter->setMarkerSize(size);
+    scatter->setColor(Qt::blue);
+    chart()->addSeries(scatter);
+    m_scatters.push_back(scatter);
 
-    //enable hardware acceleration for speed
-    m_scatter1->setUseOpenGL(true);
-    m_scatter2->setUseOpenGL(true);
-
-    m_scatter1->setMarkerSize(size);
-    m_scatter2->setMarkerSize(size);
-    m_scatter1->setColor(Qt::blue);
-    m_scatter2->setColor(Qt::red);
-    chart()->addSeries(m_scatter1);
-    chart()->addSeries(m_scatter2);
     chart()->setMargins(QMargins());
     chart()->legend()->setVisible(false);
     chart()->createDefaultAxes();
@@ -65,8 +57,8 @@ void SubScatter::mouseMoveEvent(QMouseEvent *event)
 void SubScatter::mouseReleaseEvent(QMouseEvent *event)
 {
     QPoint mousecorner(event->pos());
-    QPointF origin = chart()->mapToValue(chart()->mapFromScene(this->mapToScene(mouseorigin)), m_scatter1);
-    QPointF corner = chart()->mapToValue(chart()->mapFromScene(this->mapToScene(mousecorner)), m_scatter1);
+    QPointF origin = chart()->mapToValue(chart()->mapFromScene(this->mapToScene(mouseorigin)), m_scatters[0]);
+    QPointF corner = chart()->mapToValue(chart()->mapFromScene(this->mapToScene(mousecorner)), m_scatters[0]);
 
     if (m_group != 0){
     qDebug() << "Handling selection";
@@ -78,18 +70,10 @@ void SubScatter::mouseReleaseEvent(QMouseEvent *event)
                 qDebug() << "Handling selected point";
                 qDebug() << (it->point).x() << ", " << (it->point).y() << ", " << origin.x() << ", " << origin.y();
                 if (it->group != m_group){
+                    qDebug() << "moving to " << m_group;
+                    m_scatters[it->group-1]->remove(it->point);
+                    m_scatters[m_group-1]->append(it->point);
                     it->group = m_group;
-                    if (m_group == 1){
-                        qDebug() << "moving to 1";
-                        m_scatter2->remove(it->point);
-                        m_scatter1->append(it->point);
-                    }
-                    else{
-                        qDebug() << "moving to 2";
-                        m_scatter1->remove(it->point);
-                        m_scatter2->append(it->point);
-                        it->group = 2;
-                    }
                 }
             }
         }
@@ -142,20 +126,15 @@ void SubScatter::updateData(const Eigen::MatrixXd &data)
 {
 //    clock_t time0 = clock();
 
-    QList<QPointF> points1;
-    QList<QPointF> points2;
+    std::vector<QList<QPointF>> points(m_scatters.size());
     for (int i = 0; i < data.rows(); i ++) {
         groups[i].point=QPointF(data(i,dim1), data(i,dim2));
-        if (groups[i].group == 1){
-        points1.append(groups[i].point);
-        }
-        if (groups[i].group == 2){
-        points2.append(groups[i].point);
-        }
+        points[groups[i].group-1].append(groups[i].point);
     }
 //    clock_t time1 = clock();
-    m_scatter1->replace(points1);
-    m_scatter2->replace(points2);
+    for (size_t i = 0; i < points.size(); i++){
+        m_scatters[i]->replace(points[i]);
+    }
 //    clock_t time2 = clock();
 //    qDebug() << (float)(time2-time0)/CLOCKS_PER_SEC << ", " << (float)(time1-time0)/CLOCKS_PER_SEC << ", " << (float)(time2-time1)/CLOCKS_PER_SEC;
 }
@@ -163,8 +142,9 @@ void SubScatter::updateData(const Eigen::MatrixXd &data)
 // update seems redundant
 void SubScatter::setMarkerSize(const int markersize){
     size = markersize;
-    m_scatter1->setMarkerSize(size);
-    m_scatter2->setMarkerSize(size);
+    for (size_t i = 0; i < m_scatters.size(); i++){
+        m_scatters[i]->setMarkerSize(size);
+    }
     chart()->update();
 }
 
@@ -181,4 +161,15 @@ void SubScatter::setGroup(const int &group)
         this->setDragMode(QGraphicsView::RubberBandDrag);
         qDebug() << "Select " << m_group  << " set";
     }
+}
+
+void SubScatter::createGroup(const QColor &color)
+{
+    QScatterSeries *scatter = new QScatterSeries(this);
+    scatter->setUseOpenGL(true);
+    scatter->setMarkerSize(size);
+    scatter->setColor(color);
+    chart()->addSeries(scatter);
+    chart()->createDefaultAxes();
+    m_scatters.push_back(scatter);
 }

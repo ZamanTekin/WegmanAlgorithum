@@ -196,16 +196,12 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="group1Button">
-            <property name="text">
-             <string>Group 1</string>
-            </property>
-           </widget>
+           <widget class="QComboBox" name="groupBox"/>
           </item>
           <item>
-           <widget class="QPushButton" name="group2Button">
+           <widget class="QPushButton" name="newgroupButton">
             <property name="text">
-             <string>Group 2</string>
+             <string>+</string>
             </property>
            </widget>
           </item>

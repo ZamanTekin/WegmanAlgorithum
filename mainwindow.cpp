@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
+#include <QColorDialog>
 #include <QMessageBox>
 #include <ctime>
 
@@ -58,6 +59,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->iterationbox->setValidator( new QIntValidator(this) );
     ui->iterationbox->setText(QString::number(0));
 
+    ui->groupBox->addItem("Zoom");
+    ui->groupBox->addItem("Group 1");
+    ui->groupBox->setCurrentIndex(0);
+
     ui->scatterLayout->addWidget(mScatter);
 
     //connect widgets
@@ -109,15 +114,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->zoomButton, &QPushButton::clicked,
             [=]{
+        ui->groupBox->setCurrentIndex(0);
         mScatter->setGroup(0);
     });
-    connect(ui->group1Button, &QPushButton::clicked,
+
+
+    connect( ui->groupBox, static_cast<void (QComboBox::*)(int index)>(&QComboBox::currentIndexChanged),
+             mScatter, &SubScatter::setGroup);
+
+    connect(ui->newgroupButton, &QPushButton::clicked,
             [=]{
-        mScatter->setGroup(1);
-    });
-    connect(ui->group2Button, &QPushButton::clicked,
-            [=]{
-        mScatter->setGroup(2);
+            mScatter->createGroup(QColorDialog::getColor(Qt::blue,this));
+            QString str = "Group ";
+            str += QString::number(ui->groupBox->count());
+            ui->groupBox->addItem(str);
+            ui->groupBox->setCurrentIndex(ui->groupBox->count()-1);
+            mScatter->setGroup(ui->groupBox->currentIndex());
     });
 
     connect(ui->biggerplusButton, &QPushButton::clicked,

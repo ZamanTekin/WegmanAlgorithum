@@ -25,8 +25,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
 
 private:
-    QScatterSeries *m_scatter1;
-    QScatterSeries *m_scatter2;
+//    QScatterSeries *m_scatter1;
+//    QScatterSeries *m_scatter2;
+    std::vector<QScatterSeries*> m_scatters;
     struct P{
         size_t group;
         QPointF point;
@@ -51,6 +52,7 @@ public slots:
     void updateData(const Eigen::MatrixXd &data);
     void setMarkerSize(const int markersize);
     void setGroup(const int &group);
+    void createGroup(const QColor &color);
 };
 
 #endif // SUBSCATTER_H
