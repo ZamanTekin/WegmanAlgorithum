@@ -30,7 +30,7 @@ namespace GT{
         // lambda = N linearly independent numbers
 		vector<double> lambda;
         // iteration count and stepsize
-		size_t iteration;
+        int iteration;
 		double stepsize;
 
 
@@ -65,13 +65,20 @@ namespace GT{
 		GTalgorithm(const vector<vector<double>> data, const int projs = 2, const double step = exp(-5));
 		~GTalgorithm(){}
 
+        // set for new algorithm, should really write assignment constructor instead
+        void changeData(const vector<vector<double>> data, const int projs = 2, const double step = exp(-5));
+
         // returns next iteration, with changeable increment
         Eigen::MatrixXd iterate(const int di = 1);
         // returns specified iteration, without losing current place
-		Eigen::MatrixXd iterateabsolute(const size_t i);
+        Eigen::MatrixXd iterateabsolute(const int i);
 
         // resets algorithm, or sets to specific iteration
         Eigen::MatrixXd set(const int i=0);
+
+        // get current bases
+        Eigen::MatrixXd getBasis() const;
+        int getIteration() const;
 	};
 
 

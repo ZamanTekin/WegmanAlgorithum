@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
+#include <QMessageBox>
 #include <ctime>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -10,20 +11,23 @@ MainWindow::MainWindow(QWidget *parent) :
     mFile(),
     mGT(mFile.getdata(),mFile.getdim()),
     interval(10),
-    paused(true)
+    paused(true),
+    framecount(0)
 {
     ui->setupUi(this);
 
     // create intial scatter plot
     mScatter = new SubScatter(1,2,mGT.iterateabsolute(0),5,this);
 
-    // get dimension labels
+//    // get dimension labels
     QStringList labels;
     for (size_t i = 0; i < mFile.getdim(); i++){
         labels << QString::fromStdString(mFile.getlabel(i));
     }
 
     //intialise widgets
+    ui->filenamebox->setText(QString::fromStdString(mFile.getfilename()));
+
     ui->dim1->addItems(labels);
     ui->dim1->setCurrentIndex(0);
     ui->dim1label->setText("First axis");
@@ -44,6 +48,15 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setFPSCap(60);
     static QString fpscaplabeltext = QStringLiteral("FPS cap: %1");
     ui->fpscaplabel->setText(fpscaplabeltext.arg(QString::number(ui->fpscap->value())));
+
+    static QString fpslabeltext = QStringLiteral("Actual FPS: %1");
+    ui->fpslabel->setText(fpslabeltext.arg(QString::number(60, 'f', 1)));
+
+    static QString iterationlabeltext = QStringLiteral("Iteration: %1");
+    ui->iterationlabel->setText(iterationlabeltext.arg(QString::number(0, 'i', 0)));
+
+    ui->iterationbox->setValidator( new QIntValidator(this) );
+    ui->iterationbox->setText(QString::number(0));
 
     ui->scatterLayout->addWidget(mScatter);
 
@@ -76,16 +89,76 @@ MainWindow::MainWindow(QWidget *parent) :
         else{
             ui->pauseButton->setText("Pause");
             mTimer.start();
+            m_fpsTimer.restart();
             paused = false;
         }
         });
+
+    connect(ui->filedialogButton, &QPushButton::clicked,
+            [=] {
+        ui->filenamebox->setText(QFileDialog::getOpenFileName(NULL,"open file","/home","(*.txt *.csv)"));
+    });
+
+    connect(ui->openButton, &QPushButton::clicked,
+            [=]{
+        this->changeFile(ui->filenamebox->text());
+    });
+
+    connect(ui->showbasisButton, &QPushButton::clicked,
+            this, &MainWindow::showBasis);
+
+    connect(ui->zoomButton, &QPushButton::clicked,
+            [=]{
+        mScatter->setGroup(0);
+    });
+    connect(ui->group1Button, &QPushButton::clicked,
+            [=]{
+        mScatter->setGroup(1);
+    });
+    connect(ui->group2Button, &QPushButton::clicked,
+            [=]{
+        mScatter->setGroup(2);
+    });
+
+    connect(ui->biggerplusButton, &QPushButton::clicked,
+            [this]{
+        this->updateScatters(100);
+    });
+    connect(ui->bigplusButton, &QPushButton::clicked,
+            [this]{
+        this->updateScatters(10);
+    });
+    connect(ui->plusButton, &QPushButton::clicked,
+            [this]{
+        this->updateScatters(1);
+    });
+    connect(ui->minusButton, &QPushButton::clicked,
+            [this]{
+        this->updateScatters(-1);
+    });
+    connect(ui->bigminusButton, &QPushButton::clicked,
+            [this]{
+        this->updateScatters(-10);
+    });
+    connect(ui->biggerminusButton, &QPushButton::clicked,
+            [this]{
+        this->updateScatters(-100);
+    });
+
+    connect(ui->iterationButton, &QPushButton::clicked,
+            [this]{
+        this->setScatters((ui->iterationbox->text()).toInt());
+    });
+
 
 
     //timer controls scatter update rate
     mTimer.setInterval(interval);
     mTimer.setSingleShot(false);
     connect(&mTimer, &QTimer::timeout,
-            this,&MainWindow::updateScatters);
+            [this]{
+        this->updateScatters();
+    });
 
 }
 
@@ -94,14 +167,108 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::updateScatters()
+void MainWindow::updateScatters(const int i)
 {
-    mScatter->updateData(mGT.iterate());
+    mScatter->updateData(mGT.iterate(i));
+
+    static QString fpslabeltext = QStringLiteral("Actual FPS: %1");
+
+    static QString iterationlabeltext = QStringLiteral("Iteration: %1");
+    ui->iterationlabel->setText(iterationlabeltext.arg(QString::number(mGT.getIteration(), 'i', 0)));
+
+    framecount++;
+    if (m_fpsTimer.elapsed() >= 1000) {
+        qreal fps = qreal(1000.0 * (qreal(framecount) / qreal(m_fpsTimer.elapsed())));
+        ui->fpslabel->setText(fpslabeltext.arg(QString::number(fps, 'f', 1)));
+        m_fpsTimer.restart();
+        framecount = 0;
+    }
+}
+
+void MainWindow::setScatters(const int i){
+    mScatter->updateData(mGT.set(i));
+
+    static QString iterationlabeltext = QStringLiteral("Iteration: %1");
+    ui->iterationlabel->setText(iterationlabeltext.arg(QString::number(mGT.getIteration(), 'i', 0)));
+
+    framecount = 0;
+    m_fpsTimer.restart();
 }
 
 void MainWindow::setFPSCap(const int fps)
 {
     mTimer.setInterval(1000/fps);
+}
+
+void MainWindow::changeFile(const QString filename){
+    mFile.newfile(filename.toStdString());
+    mGT.changeData(mFile.getdata(),mFile.getdim());
+
+    //reinitialise axes widgets
+    QStringList labels;
+    for (size_t i = 0; i < mFile.getdim(); i++){
+        labels << QString::fromStdString(mFile.getlabel(i));
+    }
+
+    for (int i = ui->dim1->count(); i >= 0; i--){
+        ui->dim1->removeItem(i);
+    }
+    for (int i = (ui->dim2->count())-1; i >= 0; i--){
+        ui->dim2->removeItem(i);
+    }
+    ui->dim1->addItems(labels);
+    ui->dim1->setCurrentIndex(0);
+    ui->dim2->addItems(labels);
+    ui->dim2->setCurrentIndex(1);
+
+    // plot new data
+    mScatter->updateData(mGT.iterate(0));
+
+    framecount = 0;
+    m_fpsTimer.restart();
+}
+
+void MainWindow::showBasis(){
+
+    if(paused==false){
+        ui->pauseButton->setText("Play");
+        mTimer.stop();
+        paused = true;
+    }
+
+    //CHECK MATHS ON THIS
+    Eigen::MatrixXd basis = mGT.getBasis();
+    QString axes = "X: ";
+    for(int i = 0; i < ui->dim1->count(); i++){
+        if(i!=0){
+            axes.append(" + ");
+        }
+        axes.append(QString::number(basis(i,ui->dim1->currentIndex())));
+        axes.append("x(");
+        axes.append(ui->dim1->itemText(i));
+        axes.append(")");
+    }
+    axes.append("\n\nY: ");
+    for(int i = 0; i < ui->dim2->count(); i++){
+        if(i!=0){
+            axes.append(" + ");
+        }
+        axes.append(QString::number(basis(i,ui->dim2->currentIndex())));
+        axes.append(" (");
+        axes.append(ui->dim2->itemText(i));
+        axes.append(")");
+    }
+
+
+//    stringstream basisStream;
+//    basisStream << mGT.getBasis();
+//    QString basis = QString::fromStdString(basisStream.str());
+
+    QMessageBox msgBox;
+    msgBox.setText(axes);
+    msgBox.setTextInteractionFlags(Qt::TextSelectableByMouse);
+    msgBox.exec();
+
 }
 
 /*void MainWindow::showScatters(){
