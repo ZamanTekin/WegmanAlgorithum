@@ -16,21 +16,15 @@ namespace GT{
 	class GTalgorithm{
 	protected:
 		// class variables
-        // stores initial data and metadata
 		Eigen::MatrixXd initialdata;
 		int dim;
 		int count;
-        Eigen::MatrixXd initialbases;
-        // number of dimensions to allow projection into - omnly worth setting below max if speed gain really needed?
 		int proj;
-        // N = number of rotation planes for the current projection
+		Eigen::MatrixXd initialbases;
 		int N;
-        // I = allowed combinations of basis vectors
 		vector<vector<int>> I;
-        // lambda = N linearly independent numbers
 		vector<double> lambda;
-        // iteration count and stepsize
-        int iteration;
+		size_t iteration;
 		double stepsize;
 
 
@@ -51,34 +45,30 @@ namespace GT{
 		// generates N
 		int genN();
 
+		// generate original basis matrix. loses all 0 values after single rotation so minimal justification to use sparse.
+		// synonymous function, lose in class
+        //Eigen::MatrixXd genbasis();
+
 		// lose of optimisation pass probably - change filemanager to store as matrix?
 		// could lose latter arguments and read from vector
 		Eigen::MatrixXd datatomatrix(const vector<vector<double>> data);
 
 
-        // very veyr basic functions, can probably be built into iterate
+
 		Eigen::MatrixXd rotatebasis() const;
 		Eigen::MatrixXd projectdata() const;
 
 	public:
-        // defaults to only 2 projection dimensions
+		//GTalgorithm(const vector<vector<double>> data, const double step = exp(-5));
+        //GTalgorithm();
 		GTalgorithm(const vector<vector<double>> data, const int projs = 2, const double step = exp(-5));
 		~GTalgorithm(){}
 
-        // set for new algorithm, should really write assignment constructor instead
-        void changeData(const vector<vector<double>> data, const int projs = 2, const double step = exp(-5));
 
-        // returns next iteration, with changeable increment
         Eigen::MatrixXd iterate(const int di = 1);
-        // returns specified iteration, without losing current place
-        Eigen::MatrixXd iterateabsolute(const int i);
+		Eigen::MatrixXd iterateabsolute(const size_t i);
 
-        // resets algorithm, or sets to specific iteration
-        Eigen::MatrixXd set(const int i=0);
-
-        // get current bases
-        Eigen::MatrixXd getBasis() const;
-        int getIteration() const;
+		void reset();
 	};
 
 
